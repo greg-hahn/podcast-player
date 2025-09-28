@@ -1,4 +1,4 @@
-const cacheName = 'podcast-player-v1';
+const cacheName = 'podcast-player-v2';
 const assetsToCache = [
   '/',
   '/index.html',
@@ -18,6 +18,7 @@ self.addEventListener('install', event => {
           return cache.addAll(assetsToCache);
         })
     );
+    self.skipWaiting();
 });
   
 // Fetch event - serving cached content
@@ -45,6 +46,6 @@ self.addEventListener('activate', event => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });

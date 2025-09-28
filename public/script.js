@@ -7,6 +7,56 @@ document.addEventListener('DOMContentLoaded', () => {
     const responseContainer = document.getElementById('response');
     const queueContainer = document.querySelector('.queue');
 
+    // Favorites ---------------------------------- //
+    let favoritePodcasts = [];
+
+    function getFavoritesFromStorage() {
+        try {
+            return JSON.parse(localStorage.getItem('favoritePodcasts')) || [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveFavoritesToStorage() {
+        localStorage.setItem('favoritePodcasts', JSON.stringify(favoritePodcasts));
+    }
+
+    function isFavorited(podcast) {
+        return favoritePodcasts.some(p => p.itunesId === podcast.itunesId);
+    }
+
+    function toggleFavorite(podcast, iconEl) {
+        if (isFavorited(podcast)) {
+            favoritePodcasts = favoritePodcasts.filter(p => p.itunesId !== podcast.itunesId);
+            if (iconEl) {
+                iconEl.classList.remove('fas', 'favorited');
+                iconEl.classList.add('far');
+            }
+        } else {
+            const toSave = {
+                itunesId: podcast.itunesId,
+                image: podcast.image,
+                title: podcast.title,
+                description: podcast.description,
+                episodeCount: podcast.episodeCount,
+                newestItemPubdate: podcast.newestItemPubdate
+            };
+            favoritePodcasts.push(toSave);
+            if (iconEl) {
+                iconEl.classList.remove('far');
+                iconEl.classList.add('fas', 'favorited');
+            }
+        }
+        saveFavoritesToStorage();
+
+        // If viewing favorites list, remove card on unfavorite
+        if (responseContainer.dataset.view === 'favorites' && !isFavorited(podcast)) {
+            const cardEl = iconEl?.closest('.card');
+            if (cardEl) cardEl.remove();
+        }
+    }
+
     // Reset Dropdown & Input
     function resetHistory() {
         searchHistory.innerText = '';
@@ -168,6 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
         
             responseContainer.textContent = ''; // clear previous results
+            responseContainer.dataset.view = 'search';
         
             const titles = new Set(); // Track unique titles
         
@@ -208,8 +259,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const content = document.createElement('div');
         content.className = 'card-content';
     
+        // Header with title and favorite star
+        const header = document.createElement('div');
+        header.className = 'card-header';
+
         const title = document.createElement('h3');
         title.innerText = podcast.title;
+
+        const favBtnIcon = document.createElement('i');
+        const favored = isFavorited(podcast);
+        favBtnIcon.className = `${favored ? 'fas favorited' : 'far'} fa-star favorite-icon`;
+        favBtnIcon.title = favored ? 'Remove Favorite' : 'Add Favorite';
+        favBtnIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleFavorite(podcast, favBtnIcon);
+            favBtnIcon.title = isFavorited(podcast) ? 'Remove Favorite' : 'Add Favorite';
+        });
+
+        header.appendChild(title);
+        header.appendChild(favBtnIcon);
     
         const description = document.createElement('p');
         description.innerText = podcast.description;
@@ -222,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pubDate.className = 'pub-date';
         pubDate.innerText = `Newest Episode: ${podcast.newestItemPubdate ? formatDate(podcast.newestItemPubdate) : 'Not Available'}`;
     
-        content.appendChild(title);
+        content.appendChild(header);
         content.appendChild(description);
         content.appendChild(episodeCount);
         content.appendChild(pubDate);
@@ -233,6 +301,27 @@ document.addEventListener('DOMContentLoaded', () => {
         card.addEventListener('click', () => loadEpisodes(podcast.itunesId, podcast.episodeCount));
     
         return card;
+    }
+
+    // Load Favorites into main list on startup
+    function loadFavoritesIntoMainList() {
+        favoritePodcasts = getFavoritesFromStorage();
+        if (favoritePodcasts.length > 0) {
+            responseContainer.textContent = '';
+            favoritePodcasts.forEach((podcast, index) => {
+                const card = createCard(podcast);
+                responseContainer.appendChild(card);
+                if (index >= 25) {
+                    const imgEl = card.querySelector('img');
+                    imgEl.dataset.src = imgEl.src;
+                    imgEl.src = '';
+                }
+            });
+            responseContainer.dataset.view = 'favorites';
+            // If we didn't show loader, ensure container is visible
+            responseContainer.style.display = 'flex';
+            handleImageLoad(25);
+        }
     }
     
     // Load Episodes
@@ -576,6 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // On Startup
     loadPlayerState();
     loadQueue();
+    loadFavoritesIntoMainList();
 
     // Service Worker ----------------------------- //
     if ('serviceWorker' in navigator) {

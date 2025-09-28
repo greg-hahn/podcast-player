@@ -212,6 +212,36 @@ button:hover {
     width: 100%;
 }
 
+/* Card header: title + favorite star */
+.card-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.card-header h3 {
+    flex: 1 1 auto;
+    margin-right: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.favorite-icon {
+    flex: 0 0 auto;
+    font-size: 24px;
+    color: #b3b3b3;
+    cursor: pointer;
+}
+
+.favorite-icon.favorited {
+    color: #f1c40f;
+}
+
+.favorite-icon:hover {
+    filter: brightness(0.8);
+}
+
 .card h3 {
     font-size: 1.2em;
     margin: 0 0 10px;

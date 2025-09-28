@@ -8,6 +8,7 @@ This project is a podcast player built using the Podcast Index API and a Node.js
 - **Browse Episodes:** View episodes of selected podcasts with details like title, description, and duration.
 - **Audio Playback:** Listen to podcast episodes directly within the app with controls to play, pause, and skip.
 - **Persistent State:** Save and load playback state, including the current episode, progress, and queue, using local storage.
+- **Favorites:** Mark podcasts as favorites; favorites are saved in local storage and shown on app startup.
 - **Progressive Web App (PWA):** Installable on supported devices for offline use.
 - **Lazy Loading:** Efficiently loads podcast images and episode details as you scroll.
 
@@ -59,6 +60,7 @@ The project is deployed on Render. To deploy your own version:
 - **Browse:** Click on a podcast to view its episodes.
 - **Play:** Select an episode to start listening.
 - **Queue:** Manage your episode queue and save your progress.
+- **Favorites:** Click the star on a podcast card to add/remove it from your favorites. Favorited podcasts appear in the main list when you open the app.
 
 ## Technologies Used
 
