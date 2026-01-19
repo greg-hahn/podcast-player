@@ -48,11 +48,32 @@ The app will be available at http://localhost:3000.
 
 ## Deployment
 
-The project is deployed on Render. To deploy your own version:
+### Vercel (recommended)
 
-1. **Fork the repository** and connect it to your Render account.
-2. **Set up environment variables** on Render with your API key and secret.
-3. **Deploy the project** using Render's deployment tools.
+This repo is set up to run on Vercel using Serverless Functions for the API and static hosting for the frontend.
+
+1. Push your code to GitHub.
+2. Create a new Vercel project and import this repository.
+3. In Vercel Project Settings → Environment Variables, add:
+   - `AUTH_KEY`
+   - `SECRET_KEY`
+   - `USER_AGENT`
+   - `API_ENDPOINT` (e.g. `https://api.podcastindex.org/api/1.0`)
+4. Deploy. The frontend is served from `public/` and the API endpoints are:
+   - `/api/search?q=...`
+   - `/api/episodes?feedId=...&max=...`
+
+Notes:
+- `vercel.json` rewrites map `/`, static assets (CSS/JS/images), `manifest.json`, and `service-worker.js` to the `public/` folder.
+- The serverless functions in `api/` handle Podcast Index authentication and requests.
+
+### Render (alternative)
+
+This project can also run on Render via the Express server in `server.js`.
+
+1. Fork and connect the repo to Render.
+2. Set the same environment variables as above.
+3. Use `node server.js` as the start command.
 
 ## Functionality
 
